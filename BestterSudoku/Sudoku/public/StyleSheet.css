@@ -1,0 +1,32 @@
+﻿body {
+    font-family: 'Andada Pro', 'Times New Roman', 'Georgia', serif;
+    background-color: white;
+    color: black;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Roboto', Verdana, Arial, Tahoma, sans-serif;
+}
+
+a {
+    color: lightblue;
+}
+
+    a:link {
+        text-decoration: none;
+    }
+
+    a:visited {
+        text-decoration: none;
+        color: blueviolet;
+    }
+
+    a:hover {
+        color: blue;
+        text-decoration: underline;
+    }
+
+    a:active {
+        color: lightseagreen;
+        text-decoration: underline;
+    }
