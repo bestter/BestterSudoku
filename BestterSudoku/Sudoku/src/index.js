@@ -8,7 +8,7 @@ class Cell extends React.Component {
         super(props);
 
         this.myRef = React.createRef();
-        this.state = { onClick: props.onClick, value: props.value, position: props.position, cellkey: props.cellkey }
+        //this.state = { onClick: props.onClick, value: props.value, position: props.position, cellkey: props.cellkey }
     }
     onCellClick() {
         console.debug('onCellClick');
@@ -16,7 +16,7 @@ class Cell extends React.Component {
         this.setState((state, props) => {
             return { cellkey: state.cellkey + 200 };
         });                
-        console.debug(this.state.position + "\nstate: " + this.state.value + "\nprops: " + this.props.value);
+        //console.debug(this.state.position + "\nstate: " + this.state.value + "\nprops: " + this.props.value);
     }
     render() {
         return (<button ref={this.myRef} className="sudokuCell" id={'cell' + this.state.position} key={this.state.cellkey} onClick={() => this.onCellClick()}>
@@ -29,7 +29,7 @@ class Row extends React.Component {
     constructor(props) {
         super(props);
         this.myRef = React.createRef();
-        this.state = { index: props.index, rowkey: props.index, value: props.value }
+        //this.state = { index: props.index, rowkey: props.index, value: props.value }
     }
     onRowClick() {
         this.setState((state, props) => {
@@ -46,7 +46,7 @@ class Digit extends React.Component {
         super(props);
 
         this.myRef = React.createRef();
-        this.state = { value: props.value, onClick: props.onClick, active: false, className: props.className, digitKey: props.digitKey }
+        //this.state = { value: props.value, onClick: props.onClick, active: false, className: props.className, digitKey: props.digitKey }
     }
     onDigitClick() {
         this.state.onClick(this.state.value);
@@ -55,9 +55,9 @@ class Digit extends React.Component {
             return { digitKey: state.digitKey + 100 };
         });
     }
-    render() {
-        return (<button ref={this.myRef} id={'digit' + this.state.value} key={this.state.digitKey} className={this.props.className} onClick={() => this.onDigitClick()}>{this.state.value}</button>)
-    }
+    //render() {
+    //    return (<button ref={this.myRef} id={'digit' + this.state.value} key={this.state.digitKey} className={this.props.className} onClick={() => this.onDigitClick()}>{this.state.value}</button>)
+    //}
 }
 
 class SudokuGrid extends React.Component {
