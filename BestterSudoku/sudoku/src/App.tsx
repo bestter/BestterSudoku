@@ -1,5 +1,5 @@
-import React from 'react';
 import { DateTime } from 'luxon';
+import React from 'react';
 //import logo from './logo.svg';
 import './App.css';
 
@@ -28,11 +28,12 @@ class Cell extends React.Component<CellState, CellProps> {
         key: this.props.key,
     };
     onCellClick() {        
-        this.state.onClick();
         this.setState((state, props) => {
             return { key: state.key + 200 };
         });
+        this.state.onClick();        
         console.debug('onCellClick ' + this.state.value.toString() + ' ' + DateTime.now().toISO());
+        this.forceUpdate();
     }
     render() {
         console.debug('CELL: ' + this.state.position + ' ' + this.state.value + ' ' + DateTime.now().toISO());
@@ -63,10 +64,11 @@ class Row extends React.Component<RowState, RowProps> {
         cells: this.props.cells,
     };
     onRowClick() {        
-        console.debug('onRowClick ' + this.state.index + ' ' + DateTime.now().toISO());
+        console.debug('onRowClick ' + this.state.index + ' ' + DateTime.now().toISO());        
         this.setState((state, props) => {
             return { key: state.key + 1234 };
         });
+        this.forceUpdate();
     }
     render() {
         console.debug('Row: ' + this.state.index + ' ' + DateTime.now().toISO());
@@ -113,13 +115,15 @@ class Digit extends React.Component<DigitState, DigitProps> {
 type SudokuGridState =
     {
         cells: number[][],
-        selectedDigit: number;
+        selectedDigit: number,
+        key: number;
     };
 
 type SudokuGridProps =
     {
         cells: number[][],
-        selectedDigit: number;
+        selectedDigit: number,
+        key: number;
     };
 
 class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
@@ -128,6 +132,7 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
         // optional second annotation for better type inference
         cells: this.props.cells,
         selectedDigit: this.props.selectedDigit,
+        key: this.props.key,
     };
     handleClick(row: number, column: number) {        
         console.log('handleClick ' + this.state.selectedDigit + ' row ' + row + ' column ' + column + ' ' + DateTime.now().toISO());
@@ -146,18 +151,25 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
                 return { cells: a };
             });
         }
+        this.forceUpdate();
     }
     setSelectedDigit(digit: number) {
         this.setState((state, props) => {
             return { selectedDigit: digit };
         });
     }
+    onGridClick() {
+        console.debug('onGridClick ' + DateTime.now().toISO());
+        this.setState((state, props) => {
+            return { key: state.key + 1234 };
+        });
+        this.forceUpdate();
+    }
 
-    getCells(rowIndex: number, values: number[]): JSX.Element[] {
-        debugger;
+    getCells(rowIndex: number, values: number[]): JSX.Element[] {        
         const cells = values.slice().map((item, index) => (            
             <Cell
-                key={(rowIndex + 65) + index}                
+                key={this.state.key}                
                 position={String.fromCharCode(rowIndex + 65) + index}
                 value={item}
                 onClick={() => this.handleClick(rowIndex, index)} />
@@ -166,14 +178,14 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
     }
 
     getRows() {
-        console.debug('getRows() ' + DateTime.now().toISO());        
+        console.debug('getRows() ' + DateTime.now().toISO());
         const rows = this.state.cells.slice().map((items, index) => (            
             <Row index={index.toString()} key={index} cells={this.getCells(index, items)} />
         ));
 
         return (
-            <div className="sudokuGrid">
-                { rows }                
+            <div className="sudokuGrid" key={this.state.key} onClick={() => this.onGridClick()}>
+                { rows }
             </div>);
     }
 
@@ -196,7 +208,7 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
 
     render() {
         return (
-            <div>
+            <div >
                 {this.getRows()}
                 <div className="digits">
                     {this.getSelectedDigit()}
@@ -205,12 +217,13 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
         );
     }
 }
+
 class Sudoku extends React.Component {
 
     render() {
         return (
             <div className="sudoku">
-                <SudokuGrid cells={Array(9).fill(-1).map(() => new Array(9).fill(-1))} selectedDigit={-1} />
+                <SudokuGrid cells={Array(9).fill(-1).map(() => new Array(9).fill(-1))} selectedDigit={-1} key={1} />
             </div>);
     }
 }
