@@ -1,13 +1,11 @@
+﻿// <copyright file="Program.cs" company="Martin Labelle">
+// Copyright (c) Martin Labelle. All rights reserved.
+// </copyright>
+
 namespace BestterSudoku
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
 
     public class Program
     {

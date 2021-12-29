@@ -1,3 +1,7 @@
+﻿// <copyright file="Startup.cs" company="Martin Labelle">
+// Copyright (c) Martin Labelle. All rights reserved.
+// </copyright>
+
 namespace BestterSudoku
 {
     using Microsoft.AspNetCore.Builder;

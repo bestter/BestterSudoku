@@ -1,3 +1,7 @@
+﻿// <copyright file="WeatherForecast.cs" company="Martin Labelle">
+// Copyright (c) Martin Labelle. All rights reserved.
+// </copyright>
+
 namespace BestterSudoku
 {
     using System;
