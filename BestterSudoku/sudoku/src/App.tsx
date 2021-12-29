@@ -1,13 +1,14 @@
 import React from 'react';
-import logo from './logo.svg';
+import { DateTime } from 'luxon';
+//import logo from './logo.svg';
 import './App.css';
 
 type CellState =
     {
-        onClick: Function,        
+        onClick: Function,
         value: number,
         position: string,
-        cellkey: number;
+        key: number;
     };
 
 type CellProps =
@@ -15,7 +16,7 @@ type CellProps =
         onClick: Function,
         value: number,
         position: string,
-        cellkey: number;
+        key: number;
     };
 
 class Cell extends React.Component<CellState, CellProps> {
@@ -24,49 +25,52 @@ class Cell extends React.Component<CellState, CellProps> {
         onClick: this.props.onClick,
         value: this.props.value,
         position: this.props.position,
-        cellkey: this.props.cellkey,
+        key: this.props.key,
     };
-    onCellClick() {
-        console.debug('onCellClick');
+    onCellClick() {        
         this.state.onClick();
         this.setState((state, props) => {
-            return { cellkey: state.cellkey + 200 };
+            return { key: state.key + 200 };
         });
-        //console.debug(this.state.position + "\nstate: " + this.state.value + "\nprops: " + this.props.value);
+        console.debug('onCellClick ' + this.state.value.toString() + ' ' + DateTime.now().toISO());
     }
     render() {
-        return (<button className="sudokuCell" id={'cell' + this.state.position} key={this.state.cellkey} onClick={() => this.onCellClick()}>
-            {this.state.value}
+        console.debug('CELL: ' + this.state.position + ' ' + this.state.value + ' ' + DateTime.now().toISO());
+        return (<button className="sudokuCell" id={'cell' + this.state.position} key={this.state.key} onClick={() => this.onCellClick()}>
+            {this.state.value === -1 ? "" : this.state.value.toString()}
         </button>);
     }
 }
 
 type RowState = {
     index: string,
-    rowkey: number,
-    child_items?: Cell[];
+    key: number,
+    cells?: JSX.Element[];
 }
 
 type RowProps = {
     index: string,
-    rowkey: number,
-    child_items?: Cell[];
+    key: number,
+    cells?: JSX.Element[];
 }
 
 class Row extends React.Component<RowState, RowProps> {
+    
     state: RowState = {
         // optional second annotation for better type inference
         index: this.props.index,
-        rowkey: this.props.rowkey,
-        child_items: this.props.child_items,        
+        key: this.props.key,
+        cells: this.props.cells,
     };
-    onRowClick() {
+    onRowClick() {        
+        console.debug('onRowClick ' + this.state.index + ' ' + DateTime.now().toISO());
         this.setState((state, props) => {
-            return { rowkey: state.rowkey + 1234 };
+            return { key: state.key + 1234 };
         });
     }
     render() {
-        return (<div className="sudokuRow" id={this.state.index} key={this.state.rowkey} onClick={() => this.onRowClick()}>{this.state.child_items}</div>);
+        console.debug('Row: ' + this.state.index + ' ' + DateTime.now().toISO());
+        return (<div className="sudokuRow" id={this.state.index} key={this.state.key } onClick={() => this.onRowClick()}>{this.state.cells}</div>);
     }
 }
 
@@ -96,12 +100,11 @@ class Digit extends React.Component<DigitState, DigitProps> {
         className: this.props.className,
         digitKey: this.props.digitKey,
     };
-    onDigitClick() {
-        this.state.onClick(this.state.value);
-
+    onDigitClick() {       
         this.setState((state, props) => {
             return { digitKey: state.digitKey + 100 };
         });
+        this.state.onClick(this.state.value);
     }
     render() {
         return (<button id={'digit' + this.state.value} key={this.state.digitKey} className={this.props.className} onClick={() => this.onDigitClick()}>{this.state.value}</button>)
@@ -126,9 +129,9 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
         cells: this.props.cells,
         selectedDigit: this.props.selectedDigit,
     };
-    handleClick(row: number, column: number) {
-        console.log('handleClick ' + this.state.selectedDigit);
-        if (this.state.selectedDigit) {
+    handleClick(row: number, column: number) {        
+        console.log('handleClick ' + this.state.selectedDigit + ' row ' + row + ' column ' + column + ' ' + DateTime.now().toISO());
+        if (this.state.selectedDigit > -1) {            
             let a = this.state.cells.slice(); //creates the clone of the state
             a[row][column] = this.state.selectedDigit;
             this.setState((state, props) => {
@@ -144,71 +147,57 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
             });
         }
     }
+    setSelectedDigit(digit: number) {
+        this.setState((state, props) => {
+            return { selectedDigit: digit };
+        });
+    }
 
-    getCells() {
-        let cells: Row[];
-        console.log(new Date() + ' getCells ' + this.state.selectedDigit);
-        console.dir(this.state.cells);
-        //this.state.cells.slice().map((items, index) => {
-        //    let values: Cell[];
-        //    items.map((subItems, sIndex) => {
-        //        console.log('sIndex ' + sIndex + ' subItems ' + subItems);
-        //        values.push(<Cell
-        //            key={String.fromCharCode(index + 65) + sIndex}
-        //            cellkey={(index + 65) + sIndex}
-        //            position={String.fromCharCode(index + 65) + sIndex}
-        //            value={subItems}
-        //            onClick={() => this.handleClick(index, sIndex)} />);
-        //        return null;
-        //    });
-        //    cells.push(<Row
-        //        index={index.toString()}                
-        //        rowkey={index}
-        //        value={values} />);
-        //    return null;
-        //});
+    getCells(rowIndex: number, values: number[]): JSX.Element[] {
+        debugger;
+        const cells = values.slice().map((item, index) => (            
+            <Cell
+                key={(rowIndex + 65) + index}                
+                position={String.fromCharCode(rowIndex + 65) + index}
+                value={item}
+                onClick={() => this.handleClick(rowIndex, index)} />
+        ));                
+        return (cells);
+    }
+
+    getRows() {
+        console.debug('getRows() ' + DateTime.now().toISO());        
+        const rows = this.state.cells.slice().map((items, index) => (            
+            <Row index={index.toString()} key={index} cells={this.getCells(index, items)} />
+        ));
 
         return (
-            <div>
-                <Row index="1" rowkey={1}>                    
-                    <Cell key={String.fromCharCode(1 + 65) + 1} cellkey={(1 + 65) + 1} position={String.fromCharCode(1 + 65) + 2} onClick={() => this.handleClick(1, 1)} value={ 1 } />
-                    <Cell key={String.fromCharCode(1 + 65) + 2} cellkey={(1 + 65) + 2} position={String.fromCharCode(1 + 65) + 2} onClick={() => this.handleClick(1, 2)} value={1} />                    
-                </Row>
-                
+            <div className="sudokuGrid">
+                { rows }                
             </div>);
     }
 
     getSelectedDigit() {
-        let digitItems: Digit[] = [];
         let isFalse: boolean = false;
-        //for (let i = 1; i <= 9; i++) {
-        //    digitItems.push(<Digit
-        //        key={i}
-        //        digitKey={i}
-        //        active= isFalse
-        //        value={i}
-        //        className={['digit', this.state.selectedDigit === i ? 'digitSelected' : null].join(" ").trim()}
-        //        onClick={() => this.setState({ selectedDigit: i })}
-        //    />);
-        //}
+       
         return (
             <div className="digits_center" id="digits">
-                <Digit key={1} digitKey={1} active={isFalse} value={1} className={['digit', this.state.selectedDigit === 1 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 1 })} />
-                <Digit key={2} digitKey={2} active={isFalse} value={2} className={['digit', this.state.selectedDigit === 2 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 2 })} />
-                <Digit key={3} digitKey={3} active={isFalse} value={3} className={['digit', this.state.selectedDigit === 3 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 3 })} />
-                <Digit key={4} digitKey={4} active={isFalse} value={4} className={['digit', this.state.selectedDigit === 4 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 4 })} />
-                <Digit key={5} digitKey={5} active={isFalse} value={5} className={['digit', this.state.selectedDigit === 5 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 5 })} />
-                <Digit key={6} digitKey={6} active={isFalse} value={6} className={['digit', this.state.selectedDigit === 6 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 6 })} />
-                <Digit key={7} digitKey={7} active={isFalse} value={7} className={['digit', this.state.selectedDigit === 7 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 7 })} />
-                <Digit key={8} digitKey={8} active={isFalse} value={8} className={['digit', this.state.selectedDigit === 8 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 8 })} />
-                <Digit key={9} digitKey={9} active={isFalse} value={9} className={['digit', this.state.selectedDigit === 9 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setState({ selectedDigit: 9 })} />
+                <Digit key={1} digitKey={1} active={isFalse} value={1} className={['digit', this.state.selectedDigit === 1 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(1)} />
+                <Digit key={2} digitKey={2} active={isFalse} value={2} className={['digit', this.state.selectedDigit === 2 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(2)} />
+                <Digit key={3} digitKey={3} active={isFalse} value={3} className={['digit', this.state.selectedDigit === 3 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(3)} />
+                <Digit key={4} digitKey={4} active={isFalse} value={4} className={['digit', this.state.selectedDigit === 4 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(4)} />
+                <Digit key={5} digitKey={5} active={isFalse} value={5} className={['digit', this.state.selectedDigit === 5 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(5)} />
+                <Digit key={6} digitKey={6} active={isFalse} value={6} className={['digit', this.state.selectedDigit === 6 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(6)} />
+                <Digit key={7} digitKey={7} active={isFalse} value={7} className={['digit', this.state.selectedDigit === 7 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(7)} />
+                <Digit key={8} digitKey={8} active={isFalse} value={8} className={['digit', this.state.selectedDigit === 8 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(8)} />
+                <Digit key={9} digitKey={9} active={isFalse} value={9} className={['digit', this.state.selectedDigit === 9 ? 'digitSelected' : null].join(" ").trim()} onClick={() => this.setSelectedDigit(9)} />
             </div>)
     }
 
     render() {
         return (
             <div>
-                {this.getCells()}
+                {this.getRows()}
                 <div className="digits">
                     {this.getSelectedDigit()}
                 </div>
@@ -217,21 +206,21 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
     }
 }
 class Sudoku extends React.Component {
-    
+
     render() {
         return (
             <div className="sudoku">
-                <SudokuGrid cells={Array(9).fill(-1).map(() => new Array(9).fill(-1)) } selectedDigit={ -1 } />
+                <SudokuGrid cells={Array(9).fill(-1).map(() => new Array(9).fill(-1))} selectedDigit={-1} />
             </div>);
     }
 }
 
 function App() {
-  return (
-    <div className="App">
-      <Sudoku />
-    </div>
-  );
+    return (
+        <div className="App">
+            <Sudoku />
+        </div>
+    );
 }
 
 export default App;
