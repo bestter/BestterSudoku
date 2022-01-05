@@ -32,13 +32,13 @@ class Cell extends React.Component<CellState, CellProps> {
             return { key: state.key + 200 };
         });
         this.state.onClick();        
-        console.debug('onCellClick ' + this.state.value.toString() + ' ' + DateTime.now().toISO());
+        console.debug('onCellClick ' + this.props.value.toString() + ' ' + DateTime.now().toISO());
         this.forceUpdate();
     }
     render() {
-        console.debug('CELL: ' + this.state.position + ' ' + this.state.value + ' ' + DateTime.now().toISO());
-        return (<button className="sudokuCell" id={'cell' + this.state.position} key={this.state.key} onClick={() => this.onCellClick()}>
-            {this.state.value === -1 ? "" : this.state.value.toString()}
+        console.debug('CELL: ' + this.props.position + ' ' + this.props.value + ' ' + DateTime.now().toISO());
+        return (<button className="sudokuCell" id={'cell' + this.props.position} key={this.state.key} onClick={() => this.state.onClick()}>
+            {this.props.value === -1 ? "" : this.props.value.toString()}
         </button>);
     }
 }
@@ -64,11 +64,9 @@ class Row extends React.Component<RowState, RowProps> {
         cells: this.props.cells,
     };
     onRowClick() {        
-        console.debug('onRowClick ' + this.state.index + ' ' + DateTime.now().toISO());        
         this.setState((state, props) => {
             return { key: state.key + 1234 };
-        });
-        this.forceUpdate();
+        });        
     }
     render() {
         console.debug('Row: ' + this.state.index + ' ' + DateTime.now().toISO());
@@ -169,7 +167,7 @@ class SudokuGrid extends React.Component<SudokuGridState, SudokuGridProps>{
     getCells(rowIndex: number, values: number[]): JSX.Element[] {        
         const cells = values.slice().map((item, index) => (            
             <Cell
-                key={this.state.key}                
+                key={rowIndex + 65 + index}                
                 position={String.fromCharCode(rowIndex + 65) + index}
                 value={item}
                 onClick={() => this.handleClick(rowIndex, index)} />

@@ -17,7 +17,7 @@ namespace BestterSudoku
     public class Startup
     {
         /// <summary>
-        /// Startup constructor.
+        /// Initializes a new instance of the <see cref="Startup"/> class.        
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         public Startup(IConfiguration configuration)
